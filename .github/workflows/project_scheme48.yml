@@ -1,0 +1,42 @@
+name: Project Scheme48
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    name: CI Build
+    steps:
+    - name: Extract source
+      run: gunzip -c scheme48-1.9.3.tgz | tar -xf -
+      working-directory: ./project_scheme48
+
+    - name: Configure
+      run: |
+        cd scheme48-1.9.3
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_START "$(date -Ins)"
+        ./configure
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_scheme48
+
+    - name: Make
+      run: |
+        cd scheme48-1.9.3
+        make -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_scheme48
+
+    - name: Make check
+      run: |
+        cd scheme48-1.9.3
+        # make check -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_scheme48
+
+    - name: Run attestation
+      run: |
+        cd scheme48-1.9.3
+        /bin/bash "$ATTESTATION_HOOK" "go"
+      working-directory: ./project_scheme48

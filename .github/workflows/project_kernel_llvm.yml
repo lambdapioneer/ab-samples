@@ -1,0 +1,32 @@
+name: Project Kernel LLVM
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    steps:
+    - name: Configure
+      run: |
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_START "$(date -Ins)"
+        LLVM=1 make defconfig
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_kernel_llvm/linux
+
+    - name: Make
+      run: |
+        LLVM=1 make -j16
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_kernel_llvm/linux
+
+    - name: Make check
+      run: |
+        # no applicable check
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_kernel_llvm/linux
+
+    - name: Run attestation
+      run: /bin/bash "$ATTESTATION_HOOK" "arch/x86/boot/bzImage"
+      working-directory: ./project_kernel_llvm/linux

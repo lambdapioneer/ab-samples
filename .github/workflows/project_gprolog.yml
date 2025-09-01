@@ -1,0 +1,32 @@
+name: Project GProlog
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    steps:
+    - name: Configure
+      run: |
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_START "$(date -Ins)"
+        ./configure --without-doc-dir --without-links-dir --with-install-dir=in-place
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_gprolog/gprolog/src
+
+    - name: Make
+      run: |
+        make -j4 && make install 
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_gprolog/gprolog/src
+
+    - name: Make check
+      run: |
+        # make check -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_gprolog/gprolog/src
+
+    - name: Run attestation
+      run: /bin/bash "$ATTESTATION_HOOK" "../bin/gprolog"
+      working-directory: ./project_gprolog/gprolog/src

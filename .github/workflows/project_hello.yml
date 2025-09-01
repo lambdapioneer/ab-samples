@@ -1,0 +1,42 @@
+name: Project Hello
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    name: CI Build
+    steps:
+    - name: Extract source
+      run: tar -xf hello_2.10.orig.tar.gz
+      working-directory: ./project_hello
+
+    - name: Configure
+      run: |
+        cd hello-2.10
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_START "$(date -Ins)"
+        ./configure
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_hello
+
+    - name: Make
+      run: |
+        cd hello-2.10
+        make -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_hello
+
+    - name: Make check
+      run: |
+        cd hello-2.10
+        # make check -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_hello
+
+    - name: Run attestation
+      run: |
+        cd hello-2.10
+        /bin/bash "$ATTESTATION_HOOK" "hello"
+      working-directory: ./project_hello

@@ -1,0 +1,31 @@
+name: Project Menu
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    steps:
+    - name: Configure
+      run: |
+        autoreconf --install && ./configure
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_menu/menu
+
+    - name: Make
+      run: |
+        make -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_menu/menu
+
+    - name: Make check
+      run: |
+        # make check -j4
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_menu/menu
+
+    - name: Run attestation
+      run: /bin/bash "$ATTESTATION_HOOK" "install-menu/install-menu"
+      working-directory: ./project_menu/menu

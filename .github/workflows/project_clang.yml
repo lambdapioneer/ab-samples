@@ -1,0 +1,33 @@
+name: Project Clang 
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    steps:
+    - name: Initialize build dir
+      run: |
+        mkdir -p llvm-project/build
+      working-directory: ./project_clang
+
+    - name: Configure
+      run: |
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_START "$(date -Ins)"
+        cmake -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" ../llvm
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_clang/llvm-project/build
+
+    - name: Make
+      run: |
+        make -j16
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_clang/llvm-project/build
+
+    - name: Make check
+      run: |
+        # make check-clang -j16
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_clang/llvm-project/build

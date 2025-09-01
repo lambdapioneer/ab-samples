@@ -1,6 +1,3 @@
-[submodule "project_kernel/linux"]
-	path = project_kernel/linux
-	url = https://github.com/torvalds/linux.git
 [submodule "project_kernel_tiny/linux"]
 	path = project_kernel_tiny/linux
 	url = https://github.com/torvalds/linux.git
@@ -15,4 +12,7 @@
 	url = https://salsa.debian.org/debian-menu-team/menu.git
 [submodule "project_kernel_llvm/linux"]
 	path = project_kernel_llvm/linux
+	url = https://github.com/torvalds/linux.git
+[submodule "project_kernel/linux"]
+	path = project_kernel/linux
 	url = https://github.com/torvalds/linux.git

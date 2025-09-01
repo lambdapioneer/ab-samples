@@ -1,0 +1,42 @@
+name: Project XZ (tar) (j8)
+
+on:
+  workflow_dispatch
+
+jobs:
+  run:
+    runs-on: self-hosted
+    name: CI Build
+    steps:
+    - name: Extract source
+      run: tar -xf xz-5.6.3.tar.gz
+      working-directory: ./project_xz_tar_j8
+
+    - name: Configure
+      run: |
+        cd xz-5.6.3
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_START "$(date -Ins)"
+        ./configure
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_CONFIGURE "$(date -Ins)"
+      working-directory: ./project_xz_tar_j8
+
+    - name: Make
+      run: |
+        cd xz-5.6.3
+        make -j8
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE "$(date -Ins)"
+      working-directory: ./project_xz_tar_j8
+
+    - name: Make check
+      run: |
+        cd xz-5.6.3
+        # make check -j8
+        /bin/bash "$LOG_HOOK" TIMESTAMP POST_MAKE_CHECK "$(date -Ins)"
+        /bin/bash "$LOG_HOOK" TIMESTAMP BUILD_END "$(date -Ins)"
+      working-directory: ./project_xz_tar_j8
+
+    - name: Run attestation
+      run: |
+        cd xz-5.6.3
+        /bin/bash "$ATTESTATION_HOOK" "src/xz/.libs/xz"
+      working-directory: ./project_xz_tar_j8
